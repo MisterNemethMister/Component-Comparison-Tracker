@@ -69,7 +69,6 @@ export const ComponentEditView: React.FC<ComponentEditViewProps> = ({
   onClose,
   onSave,
 }) => {
-  const [component, setComponent] = useState<Component | null>(null);
   const [editedComponent, setEditedComponent] = useState<Component | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -90,7 +89,6 @@ export const ComponentEditView: React.FC<ComponentEditViewProps> = ({
       const foundComponent = allComponents.find(comp => comp.id === id);
       
       if (foundComponent) {
-        setComponent(foundComponent);
         setEditedComponent({ ...foundComponent });
       } else {
         setError('Component not found');

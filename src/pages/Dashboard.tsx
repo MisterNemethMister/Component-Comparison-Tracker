@@ -7,14 +7,7 @@ import {
   Box, 
   Tabs, 
   Tab,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
   Alert,
-  FormControlLabel,
-  Switch,
 } from '@mui/material';
 import {
   Storage as StorageIcon,
@@ -22,7 +15,6 @@ import {
   Dashboard as DashboardIcon,
   FilterList as FilterListIcon,
 } from '@mui/icons-material';
-import { ComponentCard } from '../components/ComponentCard';
 import { ComponentTypeCard } from '../components/ComponentTypeCard';
 import { RepositoryManager } from '../components/RepositoryManager';
 import { ComponentComparison } from '../components/ComponentComparison';
@@ -75,6 +67,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     loadRepositories();
     loadComponents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadRepositories = () => {
@@ -94,6 +87,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadComponents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRepository]);
 
   const getRepositoryIdFromComponentId = (componentId: string): string | null => {
@@ -182,10 +176,6 @@ const Dashboard: React.FC = () => {
     setVisualComparisonOpen(true);
   };
 
-  const handleVisualComparisonClose = () => {
-    setVisualComparisonOpen(false);
-    setSelectedComponentName(null);
-  };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);

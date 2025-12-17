@@ -127,8 +127,6 @@ export const VisualComponentComparison: React.FC<VisualComponentComparisonProps>
     }
   };
 
-  const consistencyInfo = getConsistencyIndicator(components);
-
   if (!componentName) {
     return null;
   }

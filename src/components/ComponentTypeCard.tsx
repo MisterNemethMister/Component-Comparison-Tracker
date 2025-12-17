@@ -13,7 +13,6 @@ import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
   Compare as CompareIcon,
-  Storage as StorageIcon,
 } from '@mui/icons-material';
 import { Component } from '../types/component';
 import { repositoryManager } from '../services/repositoryManager';
@@ -88,9 +87,7 @@ export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = ({
     }
   };
 
-  // Get unique categories and total variants
-  const categories = Array.from(new Set(components.map(c => c.category)));
-  const totalVariants = components.reduce((sum, c) => sum + c.variants.length, 0);
+  // Get unique tags
   const allTags = Array.from(new Set(components.flatMap(c => c.tags)));
   
   // Get the most recent component for primary display

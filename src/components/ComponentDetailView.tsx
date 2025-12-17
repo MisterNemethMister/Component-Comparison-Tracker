@@ -31,19 +31,12 @@ import {
   ExpandMore as ExpandMoreIcon,
   Close as CloseIcon,
   Code as CodeIcon,
-  Info as InfoIcon,
-  Category as CategoryIcon,
-  Label as LabelIcon,
-  Schedule as ScheduleIcon,
   Compare as CompareIcon,
-  Visibility as VisibilityIcon,
   Save as SaveIcon,
   ContentCopy as CopyIcon,
 } from '@mui/icons-material';
-import { Component, ComponentVariant } from '../types/component';
+import { Component } from '../types/component';
 import { repositoryManager } from '../services/repositoryManager';
-import { ComponentPreview } from './ComponentPreview';
-import { VisualComponentComparison } from './VisualComponentComparison';
 
 interface ComponentDetailViewProps {
   componentId: string | null;
@@ -101,6 +94,7 @@ export const ComponentDetailView: React.FC<ComponentDetailViewProps> = ({
     if (component && open) {
       loadSourceCode();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [component, open]);
 
   const loadComponent = (id: string) => {
@@ -246,12 +240,6 @@ export const ComponentDetailView: React.FC<ComponentDetailViewProps> = ({
     });
   };
 
-  const handleCompare = () => {
-    if (component && onCompare) {
-      onCompare(component.name);
-      onClose();
-    }
-  };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);

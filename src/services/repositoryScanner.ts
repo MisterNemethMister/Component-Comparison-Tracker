@@ -1,4 +1,4 @@
-import { Component, ComponentVariant, Repository } from '../types/component';
+import { Component, Repository } from '../types/component';
 
 export interface ScanOptions {
   includePatterns: string[];
