@@ -109,24 +109,6 @@ export const VisualComponentComparison: React.FC<VisualComponentComparisonProps>
     return 'Unknown Repository';
   };
 
-  const getConsistencyIndicator = (components: Component[]) => {
-    if (components.length <= 1) return { color: 'success', label: 'Single Implementation' };
-    
-    // Simple consistency check based on variant count and category
-    const categories = new Set(components.map(c => c.category));
-    const variantCounts = components.map(c => c.variants.length);
-    const minVariants = Math.min(...variantCounts);
-    const maxVariants = Math.max(...variantCounts);
-    
-    if (categories.size === 1 && minVariants === maxVariants) {
-      return { color: 'success', label: 'Highly Consistent' };
-    } else if (categories.size <= 2 && (maxVariants - minVariants) <= 1) {
-      return { color: 'warning', label: 'Moderately Consistent' };
-    } else {
-      return { color: 'error', label: 'Inconsistent' };
-    }
-  };
-
   if (!componentName) {
     return null;
   }
