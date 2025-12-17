@@ -237,7 +237,7 @@ const Dashboard: React.FC = () => {
               <TextField
                 fullWidth
                 variant="outlined"
-                placeholder="Search components..."
+                placeholder="Search for a component..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 sx={{ mb: 2 }}
