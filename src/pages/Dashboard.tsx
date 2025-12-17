@@ -344,6 +344,11 @@ const Dashboard: React.FC = () => {
         <ComponentComparison 
           onComponentView={handleView} 
           onVisualComparison={handleVisualComparison}
+          searchTerm={searchTerm}
+          selectedRepository={selectedRepository}
+          selectedCategory={selectedCategory}
+          selectedTag={selectedTag}
+          showSharedOnly={showSharedOnly}
         />
       </TabPanel>
 

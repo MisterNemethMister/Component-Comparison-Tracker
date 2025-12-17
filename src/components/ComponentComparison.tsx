@@ -33,12 +33,22 @@ interface ComponentComparisonProps {
   onComponentSelect?: (componentName: string, repositoryId: string) => void;
   onComponentView?: (componentId: string) => void;
   onVisualComparison?: (componentName: string) => void;
+  searchTerm?: string;
+  selectedRepository?: string;
+  selectedCategory?: string;
+  selectedTag?: string;
+  showSharedOnly?: boolean;
 }
 
 export const ComponentComparison: React.FC<ComponentComparisonProps> = ({
   onComponentSelect,
   onComponentView,
   onVisualComparison,
+  searchTerm = '',
+  selectedRepository = 'all',
+  selectedCategory = 'all',
+  selectedTag = 'all',
+  showSharedOnly = false,
 }) => {
   const [comparisons, setComparisons] = useState<ComponentComparisonType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +71,22 @@ export const ComponentComparison: React.FC<ComponentComparisonProps> = ({
   };
 
   const filteredComparisons = comparisons.filter(comparison => {
-    return true;
+    const matchesSearch = searchTerm === '' || 
+      comparison.componentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comparison.differences.some((diff: string) => diff.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesRepository = selectedRepository === 'all' || 
+      comparison.repositories.some(r => r.repositoryId === selectedRepository);
+    
+    const matchesCategory = selectedCategory === 'all' || 
+      comparison.repositories.some(r => r.component?.category === selectedCategory);
+    
+    const matchesTag = selectedTag === 'all' || 
+      comparison.repositories.some(r => r.component?.tags.includes(selectedTag));
+    
+    const matchesSharedOnly = !showSharedOnly || comparison.repositories.length > 1;
+    
+    return matchesSearch && matchesRepository && matchesCategory && matchesTag && matchesSharedOnly;
   });
 
   const getConsistencyColor = (score: number) => {
