@@ -8,12 +8,17 @@ import {
   Tabs, 
   Tab,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import {
   Storage as StorageIcon,
   Compare as CompareIcon,
   Dashboard as DashboardIcon,
-  FilterList as FilterListIcon,
 } from '@mui/icons-material';
 import { ComponentTypeCard } from '../components/ComponentTypeCard';
 import { RepositoryManager } from '../components/RepositoryManager';
@@ -21,7 +26,6 @@ import { ComponentComparison } from '../components/ComponentComparison';
 import { ComponentDetailView } from '../components/ComponentDetailView';
 import { ComponentEditView } from '../components/ComponentEditView';
 import { VisualComponentComparison } from '../components/VisualComponentComparison';
-import { AdvancedFiltersPanel } from '../components/AdvancedFiltersPanel';
 import { Component, Repository } from '../types/component';
 import { repositoryManager } from '../services/repositoryManager';
 
@@ -62,7 +66,6 @@ const Dashboard: React.FC = () => {
   const [visualComparisonOpen, setVisualComparisonOpen] = useState(false);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [selectedComponentName, setSelectedComponentName] = useState<string | null>(null);
-  const [filtersPanelOpen, setFiltersPanelOpen] = useState(false);
 
   useEffect(() => {
     loadRepositories();
@@ -230,21 +233,81 @@ const Dashboard: React.FC = () => {
           </Alert>
         ) : (
           <>
-            <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
+            <Box sx={{ mb: 3 }}>
               <TextField
+                fullWidth
                 variant="outlined"
                 placeholder="Search components..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{ flexGrow: 1 }}
+                sx={{ mb: 2 }}
               />
-              <Button
-                variant="outlined"
-                startIcon={<FilterListIcon />}
-                onClick={() => setFiltersPanelOpen(true)}
-              >
-                Advanced Filters
-              </Button>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: 2,
+                alignItems: 'center'
+              }}>
+                <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
+                  <InputLabel>Repository</InputLabel>
+                  <Select
+                    value={selectedRepository}
+                    onChange={(e) => setSelectedRepository(e.target.value)}
+                    label="Repository"
+                  >
+                    <MenuItem value="all">All Repositories</MenuItem>
+                    {repositories.map((repo) => (
+                      <MenuItem key={repo.id} value={repo.id}>
+                        {repo.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
+                  <InputLabel>Component Type</InputLabel>
+                  <Select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    label="Component Type"
+                  >
+                    <MenuItem value="all">All Types</MenuItem>
+                    {allCategories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
+                  <InputLabel>Tag</InputLabel>
+                  <Select
+                    value={selectedTag}
+                    onChange={(e) => setSelectedTag(e.target.value)}
+                    label="Tag"
+                  >
+                    <MenuItem value="all">All Tags</MenuItem>
+                    {allTags.map((tag) => (
+                      <MenuItem key={tag} value={tag}>
+                        {tag}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showSharedOnly}
+                      onChange={(e) => setShowSharedOnly(e.target.checked)}
+                    />
+                  }
+                  label="Shared Names Only"
+                  sx={{ flex: '1 1 200px' }}
+                />
+              </Box>
             </Box>
 
             <Box sx={{ mb: 2 }}>
@@ -308,23 +371,6 @@ const Dashboard: React.FC = () => {
         onClose={() => setVisualComparisonOpen(false)}
       />
 
-      <AdvancedFiltersPanel
-        open={filtersPanelOpen}
-        onClose={() => setFiltersPanelOpen(false)}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        selectedRepository={selectedRepository}
-        onRepositoryChange={setSelectedRepository}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        selectedTag={selectedTag}
-        onTagChange={setSelectedTag}
-        showSharedOnly={showSharedOnly}
-        onSharedOnlyChange={setShowSharedOnly}
-        repositories={repositories}
-        categories={allCategories}
-        tags={allTags}
-      />
     </Container>
   );
 };
