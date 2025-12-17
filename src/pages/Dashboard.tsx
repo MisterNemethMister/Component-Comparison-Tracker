@@ -193,6 +193,14 @@ const Dashboard: React.FC = () => {
     loadComponents();
   };
 
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setSelectedRepository('all');
+    setSelectedCategory('all');
+    setSelectedTag('all');
+    setShowSharedOnly(false);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -299,6 +307,14 @@ const Dashboard: React.FC = () => {
               label="Shared Names Only"
               sx={{ flex: '1 1 200px' }}
             />
+            
+            <Button
+              variant="outlined"
+              onClick={handleClearFilters}
+              sx={{ minWidth: 120 }}
+            >
+              Clear Filters
+            </Button>
           </Box>
         </Box>
       )}
