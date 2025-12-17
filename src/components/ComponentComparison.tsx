@@ -18,18 +18,9 @@ import {
   AccordionDetails,
   Alert,
   Button,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Switch,
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
-  Search as SearchIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Warning as WarningIcon,
@@ -51,12 +42,7 @@ export const ComponentComparison: React.FC<ComponentComparisonProps> = ({
 }) => {
   const [comparisons, setComparisons] = useState<ComponentComparisonType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [expandedAccordion, setExpandedAccordion] = useState<string | false>(false);
-  const [selectedRepository, setSelectedRepository] = useState<string>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTag, setSelectedTag] = useState<string>('all');
-  const [showSharedOnly, setShowSharedOnly] = useState(false);
 
   useEffect(() => {
     loadComparisons();
@@ -74,47 +60,8 @@ export const ComponentComparison: React.FC<ComponentComparisonProps> = ({
     }
   };
 
-  const allRepositories = repositoryManager.getAllRepositories();
-  
-  const allCategories = Array.from(
-    new Set(
-      comparisons.flatMap(c => 
-        c.repositories
-          .filter(r => r.component)
-          .map(r => r.component!.category)
-      )
-    )
-  ).sort();
-  
-  const allTags = Array.from(
-    new Set(
-      comparisons.flatMap(c => 
-        c.repositories
-          .filter(r => r.component)
-          .flatMap(r => r.component!.tags)
-      )
-    )
-  ).sort();
-
   const filteredComparisons = comparisons.filter(comparison => {
-    const matchesSearch = comparison.componentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comparison.differences.some(diff => 
-        diff.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    
-    const matchesRepository = selectedRepository === 'all' || 
-      comparison.repositories.some(r => r.repositoryId === selectedRepository && r.exists);
-    
-    const matchesCategory = selectedCategory === 'all' || 
-      comparison.repositories.some(r => r.component?.category === selectedCategory);
-    
-    const matchesTag = selectedTag === 'all' || 
-      comparison.repositories.some(r => r.component?.tags.includes(selectedTag));
-    
-    const matchesShared = !showSharedOnly || 
-      comparison.repositories.filter(r => r.exists).length >= 2;
-    
-    return matchesSearch && matchesRepository && matchesCategory && matchesTag && matchesShared;
+    return true;
   });
 
   const getConsistencyColor = (score: number) => {
@@ -179,81 +126,6 @@ export const ComponentComparison: React.FC<ComponentComparisonProps> = ({
         <Button variant="outlined" onClick={loadComparisons}>
           Refresh
         </Button>
-      </Box>
-
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <TextField
-          variant="outlined"
-          placeholder="Search components or issues..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: 300 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <FormControl sx={{ minWidth: 180 }}>
-          <InputLabel>Repository</InputLabel>
-          <Select
-            value={selectedRepository}
-            onChange={(e) => setSelectedRepository(e.target.value)}
-            label="Repository"
-          >
-            <MenuItem value="all">All Repositories</MenuItem>
-            {allRepositories.map((repo) => (
-              <MenuItem key={repo.id} value={repo.id}>
-                {repo.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ minWidth: 180 }}>
-          <InputLabel>Component Type</InputLabel>
-          <Select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            label="Component Type"
-          >
-            <MenuItem value="all">All Types</MenuItem>
-            {allCategories.map((category) => (
-              <MenuItem key={category} value={category}>
-                {category}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ minWidth: 180 }}>
-          <InputLabel>Tag</InputLabel>
-          <Select
-            value={selectedTag}
-            onChange={(e) => setSelectedTag(e.target.value)}
-            label="Tag"
-          >
-            <MenuItem value="all">All Tags</MenuItem>
-            {allTags.map((tag) => (
-              <MenuItem key={tag} value={tag}>
-                {tag}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={showSharedOnly}
-              onChange={(e) => setShowSharedOnly(e.target.checked)}
-            />
-          }
-          label="Shared Names Only"
-        />
       </Box>
 
       <Box sx={{ mb: 3 }}>
