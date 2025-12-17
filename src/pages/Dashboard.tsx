@@ -208,101 +208,6 @@ const Dashboard: React.FC = () => {
         </Button>
       </Box>
 
-      {repositories.length === 0 ? (
-        <Alert 
-          severity="info" 
-          action={
-            <Button 
-              color="inherit" 
-              size="small"
-              onClick={() => setRepoManagerOpen(true)}
-            >
-              Add Repository
-            </Button>
-          }
-          sx={{ mb: 3 }}
-        >
-          No repositories added yet. Add local repositories to start comparing components.
-        </Alert>
-      ) : (
-        <Box sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Search for a component..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: 2,
-            alignItems: 'center'
-          }}>
-            <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
-              <InputLabel>Repository</InputLabel>
-              <Select
-                value={selectedRepository}
-                onChange={(e) => setSelectedRepository(e.target.value)}
-                label="Repository"
-              >
-                <MenuItem value="all">All Repositories</MenuItem>
-                {repositories.map((repo) => (
-                  <MenuItem key={repo.id} value={repo.id}>
-                    {repo.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
-            <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
-              <InputLabel>Component Type</InputLabel>
-              <Select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                label="Component Type"
-              >
-                <MenuItem value="all">All Types</MenuItem>
-                {allCategories.map((category) => (
-                  <MenuItem key={category} value={category}>
-                    {category}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
-            <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
-              <InputLabel>Tag</InputLabel>
-              <Select
-                value={selectedTag}
-                onChange={(e) => setSelectedTag(e.target.value)}
-                label="Tag"
-              >
-                <MenuItem value="all">All Tags</MenuItem>
-                {allTags.map((tag) => (
-                  <MenuItem key={tag} value={tag}>
-                    {tag}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showSharedOnly}
-                  onChange={(e) => setShowSharedOnly(e.target.checked)}
-                />
-              }
-              label="Shared Names Only"
-              sx={{ flex: '1 1 200px' }}
-            />
-          </Box>
-        </Box>
-      )}
-
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={selectedTab} onChange={handleTabChange} aria-label="dashboard tabs">
           <Tab icon={<DashboardIcon />} label="Components" />
@@ -311,8 +216,99 @@ const Dashboard: React.FC = () => {
       </Box>
 
       <TabPanel value={selectedTab} index={0}>
-        {repositories.length === 0 ? null : (
+        {repositories.length === 0 ? (
+          <Alert 
+            severity="info" 
+            action={
+              <Button 
+                color="inherit" 
+                size="small"
+                onClick={() => setRepoManagerOpen(true)}
+              >
+                Add Repository
+              </Button>
+            }
+          >
+            No repositories added yet. Add local repositories to start comparing components.
+          </Alert>
+        ) : (
           <>
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Search for a component..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: 2,
+                alignItems: 'center'
+              }}>
+                <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
+                  <InputLabel>Repository</InputLabel>
+                  <Select
+                    value={selectedRepository}
+                    onChange={(e) => setSelectedRepository(e.target.value)}
+                    label="Repository"
+                  >
+                    <MenuItem value="all">All Repositories</MenuItem>
+                    {repositories.map((repo) => (
+                      <MenuItem key={repo.id} value={repo.id}>
+                        {repo.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
+                  <InputLabel>Component Type</InputLabel>
+                  <Select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    label="Component Type"
+                  >
+                    <MenuItem value="all">All Types</MenuItem>
+                    {allCategories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <FormControl size="small" sx={{ minWidth: 200, flex: '1 1 200px' }}>
+                  <InputLabel>Tag</InputLabel>
+                  <Select
+                    value={selectedTag}
+                    onChange={(e) => setSelectedTag(e.target.value)}
+                    label="Tag"
+                  >
+                    <MenuItem value="all">All Tags</MenuItem>
+                    {allTags.map((tag) => (
+                      <MenuItem key={tag} value={tag}>
+                        {tag}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showSharedOnly}
+                      onChange={(e) => setShowSharedOnly(e.target.checked)}
+                    />
+                  }
+                  label="Shared Names Only"
+                  sx={{ flex: '1 1 200px' }}
+                />
+              </Box>
+            </Box>
 
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
