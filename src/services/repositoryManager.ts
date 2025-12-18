@@ -1,6 +1,7 @@
 import { Repository, ComponentLibrary, Component, ComponentComparison } from '../types/component';
 import { repositoryScanner, ScanOptions } from './repositoryScanner';
 import { figmaService } from './figmaService';
+import { componentLibraryService } from './componentLibraryService';
 
 export class RepositoryManager {
   private repositories: Map<string, Repository> = new Map();
@@ -90,6 +91,64 @@ export class RepositoryManager {
     }
   }
 
+  async addLocalFigmaFile(file: File, name?: string, description?: string): Promise<Repository> {
+    try {
+      // Parse the file to validate it
+      const figmaFile = await figmaService.parseLocalFigmaFile(file);
+      
+      const repository: Repository = {
+        id: this.generateId(),
+        name: name || figmaFile.name || file.name.replace('.fig', ''),
+        path: file.name,
+        description: description || `Local Figma file: ${file.name}`,
+        type: 'figma',
+        localFile: file,
+        lastScanned: undefined,
+        componentCount: 0,
+      };
+
+      this.repositories.set(repository.id, repository);
+      this.saveRepositoriesToStorage();
+      
+      return repository;
+    } catch (error) {
+      console.error('Failed to add local Figma file:', error);
+      throw new Error(`Failed to add local Figma file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  async addComponentLibraryUrl(
+    url: string,
+    name?: string,
+    description?: string,
+    authToken?: string
+  ): Promise<Repository> {
+    try {
+      // Fetch and validate the component library
+      const libraryMetadata = await componentLibraryService.fetchComponentLibrary(url, authToken);
+      
+      const repository: Repository = {
+        id: this.generateId(),
+        name: name || libraryMetadata.name || 'Component Library',
+        path: url,
+        description: description || libraryMetadata.description || `Component library from ${url}`,
+        type: 'remote',
+        url,
+        authToken,
+        lastScanned: undefined,
+        componentCount: 0,
+      };
+
+      this.repositories.set(repository.id, repository);
+      this.saveRepositoriesToStorage();
+      
+      return repository;
+    } catch (error) {
+      console.error('Failed to add component library URL:', error);
+      throw new Error(`Failed to add component library: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   async scanRepository(repositoryId: string, options?: Partial<ScanOptions>): Promise<ComponentLibrary> {
     const repository = this.repositories.get(repositoryId);
     if (!repository) {
@@ -101,10 +160,22 @@ export class RepositoryManager {
 
       if (repository.type === 'figma') {
         // Scan Figma repository
-        if (!repository.figmaFileKey) {
-          throw new Error('Figma file key not found');
+        if (repository.localFile) {
+          // Handle local Figma file
+          components = await figmaService.convertLocalFigmaToComponents(repository.localFile, repositoryId);
+        } else if (repository.figmaFileKey) {
+          // Handle remote Figma file via API
+          components = await figmaService.convertFigmaToComponents(repository.figmaFileKey, repositoryId);
+        } else {
+          throw new Error('Figma file key or local file not found');
         }
-        components = await figmaService.convertFigmaToComponents(repository.figmaFileKey, repositoryId);
+      } else if (repository.type === 'remote' && repository.url) {
+        // Scan remote component library
+        const libraryMetadata = await componentLibraryService.fetchComponentLibrary(
+          repository.url,
+          repository.authToken
+        );
+        components = await componentLibraryService.convertLibraryToComponents(libraryMetadata, repositoryId);
       } else {
         // Scan local repository
         const componentFiles = await repositoryScanner.scanRepository(repository.path, options);

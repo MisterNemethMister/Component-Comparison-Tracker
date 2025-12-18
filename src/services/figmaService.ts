@@ -143,6 +143,100 @@ class FigmaService {
     return tags;
   }
 
+  async parseLocalFigmaFile(file: File): Promise<FigmaFile> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          
+          // Check if it's a binary file (Figma's native .fig format)
+          if (content.charCodeAt(0) === 0 || content.includes('\x00') || !content.trim().startsWith('{')) {
+            reject(new Error(
+              'Native .fig files use a proprietary binary format that cannot be parsed in the browser.\n\n' +
+              'Please use one of these alternatives:\n' +
+              '1. Use the Figma URL option with your Figma API token\n' +
+              '2. Export your Figma file as JSON from Figma (File > Export)\n' +
+              '3. Use the Component Library URL option if your components are published'
+            ));
+            return;
+          }
+          
+          const figmaData = JSON.parse(content);
+          
+          // Validate basic structure
+          if (!figmaData.document) {
+            throw new Error('Invalid Figma file format: missing document');
+          }
+          
+          resolve(figmaData as FigmaFile);
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('proprietary binary format')) {
+            reject(error);
+          } else {
+            reject(new Error(
+              'Failed to parse file. This may not be a valid Figma JSON export.\n\n' +
+              'If you have a native .fig file, please use the Figma URL option instead with your API token.'
+            ));
+          }
+        }
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      
+      reader.readAsText(file);
+    });
+  }
+
+  async convertLocalFigmaToComponents(
+    file: File,
+    repositoryId: string
+  ): Promise<Component[]> {
+    const figmaFile = await this.parseLocalFigmaFile(file);
+    const componentNodes = this.findComponentNodes(figmaFile.document);
+
+    const componentsMap = new Map<string, Component>();
+
+    for (const node of componentNodes) {
+      const baseName = node.name.split('/')[0].trim();
+      const variantName = node.name.includes('/') 
+        ? node.name.split('/').slice(1).join('/').trim()
+        : 'Default';
+
+      const variant: ComponentVariant = {
+        id: node.id,
+        name: variantName,
+        description: node.description || '',
+        props: node.componentPropertyDefinitions || {},
+        lastUpdated: figmaFile.lastModified || new Date().toISOString(),
+      };
+
+      if (componentsMap.has(baseName)) {
+        const existingComponent = componentsMap.get(baseName)!;
+        existingComponent.variants.push(variant);
+        existingComponent.lastUpdated = figmaFile.lastModified || new Date().toISOString();
+      } else {
+        const component: Component = {
+          id: `${repositoryId}:${node.id}`,
+          repositoryId,
+          name: baseName,
+          description: node.description || `Figma component: ${baseName}`,
+          variants: [variant],
+          category: this.categorizeComponent(baseName),
+          tags: this.extractTags(node),
+          documentation: node.description,
+          lastUpdated: figmaFile.lastModified || new Date().toISOString(),
+        };
+        componentsMap.set(baseName, component);
+      }
+    }
+
+    return Array.from(componentsMap.values());
+  }
+
   async convertFigmaToComponents(
     fileKey: string,
     repositoryId: string

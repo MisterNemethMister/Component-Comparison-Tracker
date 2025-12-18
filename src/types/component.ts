@@ -29,6 +29,8 @@ export interface Repository {
   url?: string;
   branch?: string;
   figmaFileKey?: string;
+  localFile?: File;
+  authToken?: string;
   lastScanned?: string;
   componentCount?: number;
 }

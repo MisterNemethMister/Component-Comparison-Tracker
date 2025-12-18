@@ -51,7 +51,8 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
   const [scanningRepo, setScanningRepo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [repoType, setRepoType] = useState<'local' | 'figma'>('local');
+  const [repoType, setRepoType] = useState<'local' | 'figma' | 'library'>('local');
+  const [authToken, setAuthToken] = useState('');
   const [showFigmaSettings, setShowFigmaSettings] = useState(false);
 
   useEffect(() => {
@@ -67,7 +68,10 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
 
   const handleAddRepository = async () => {
     if (!newRepoPath.trim()) {
-      setError(repoType === 'figma' ? 'Figma URL is required' : 'Repository path is required');
+      const errorMsg = repoType === 'figma' ? 'Figma URL is required' : 
+                       repoType === 'library' ? 'Component library URL is required' : 
+                       'Repository path is required';
+      setError(errorMsg);
       return;
     }
 
@@ -83,6 +87,13 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
           newRepoName.trim() || undefined,
           newRepoDescription.trim() || undefined
         );
+      } else if (repoType === 'library') {
+        repository = await repositoryManager.addComponentLibraryUrl(
+          newRepoPath.trim(),
+          newRepoName.trim() || undefined,
+          newRepoDescription.trim() || undefined,
+          authToken.trim() || undefined
+        );
       } else {
         repository = await repositoryManager.addRepository(
           newRepoPath.trim(),
@@ -95,6 +106,7 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
       setNewRepoPath('');
       setNewRepoName('');
       setNewRepoDescription('');
+      setAuthToken('');
       setShowAddForm(false);
       
       if (onRepositoryAdded) {
@@ -186,10 +198,11 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
             <Tabs value={repoType} onChange={(e, v) => setRepoType(v)} sx={{ mb: 2 }}>
               <Tab label="Local Repository" value="local" />
               <Tab label="Figma File" value="figma" />
+              <Tab label="Component Library" value="library" />
             </Tabs>
 
-            {repoType === 'local' ? (
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            {repoType === 'local' && (
+              <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-start' }}>
                 <TextField
                   fullWidth
                   label="Repository Path"
@@ -202,12 +215,14 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
                   startIcon={<FolderIcon />}
                   onClick={handleSelectFolder}
                   variant="outlined"
-                  sx={{ minWidth: 'auto', px: 2 }}
+                  sx={{ minWidth: 'auto', px: 2, height: '56px', mt: 0 }}
                 >
                   Browse
                 </Button>
               </Box>
-            ) : (
+            )}
+
+            {repoType === 'figma' && (
               <TextField
                 fullWidth
                 label="Figma File URL"
@@ -217,6 +232,36 @@ export const RepositoryManager: React.FC<RepositoryManagerProps> = ({
                 helperText="Paste the full URL of your Figma file"
                 sx={{ mb: 2 }}
               />
+            )}
+
+            {repoType === 'library' && (
+              <Box>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    <strong>Note:</strong> Many component libraries (including kumo-ui.com) require authentication.
+                    If the library is behind authentication, you'll need to provide a valid access token below.
+                  </Typography>
+                </Alert>
+                <TextField
+                  fullWidth
+                  label="Component Library URL"
+                  value={newRepoPath}
+                  onChange={(e) => setNewRepoPath(e.target.value)}
+                  placeholder="https://kumo-ui.com/ or https://your-storybook.com"
+                  helperText="URL to your published component library or Storybook"
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Authentication Token (Optional)"
+                  value={authToken}
+                  onChange={(e) => setAuthToken(e.target.value)}
+                  placeholder="Bearer token or API key"
+                  helperText="Required for authenticated component libraries like kumo-ui.com"
+                  type="password"
+                  sx={{ mb: 2 }}
+                />
+              </Box>
             )}
 
             <TextField

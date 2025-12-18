@@ -1,6 +1,32 @@
-# Getting Started with Create React App
+# Component Consistency Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A tool for tracking and comparing component libraries across multiple repositories, including support for local code repositories and Figma design files.
+
+## Features
+
+- **Local Repository Scanning**: Scan local React/TypeScript repositories for components
+- **Figma Integration**: 
+  - Connect to Figma files via API URL with authentication token
+- **Component Library URLs**: 
+  - Connect to published component libraries (e.g., https://kumo-ui.com/)
+  - Support for Storybook-based documentation
+  - Authentication token support for private libraries
+- **Component Comparison**: Compare components across different repositories
+- **Consistency Analysis**: Identify inconsistencies in component implementations
+- **Repository Management**: Add, scan, and manage multiple repositories
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+
+```bash
+npm install
+```
 
 ## Available Scripts
 
